@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客户资料收集系统 - 测试页面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .status {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .status-icon.success {
+            background: #10b981;
+        }
+        
+        .status-icon.warning {
+            background: #f59e0b;
+        }
+        
+        .status-text {
+            flex: 1;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .result.success {
+            background: #d1fae5;
+            border: 1px solid #6ee7b7;
+            color: #065f46;
+            display: block;
+        }
+        
+        .result.error {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #7f1d1d;
+            display: block;
+        }
+        
+        .links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        
+        .links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 客户资料收集系统</h1>
+        <p class="subtitle">前端测试页面 v1.0.0</p>
+        
+        <div class="status">
+            <div class="status-item">
+                <div class="status-icon success">✓</div>
+                <div class="status-text">
+                    <strong>后端 API</strong>
+                    <br>
+                    <span id="api-status">检查中...</span>
+                </div>
+            </div>
+            <div class="status-item">
+                <div class="status-icon success">✓</div>
+                <div class="status-text">
+                    <strong>前端应用</strong>
+                    <br>
+                    <span>已成功加载</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="username">用户名</label>
+            <input type="text" id="username" placeholder="输入用户名" value="testuser">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" placeholder="输入密码" value="password123">
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-primary" onclick="testLogin()">测试登录</button>
+            <button class="btn-secondary" onclick="clearResult()">清除结果</button>
+        </div>
+        
+        <div id="result" class="result"></div>
+        
+        <div class="links">
+            <a href="http://localhost:8000/docs" target="_blank">📚 API 文档</a>
+            <a href="http://localhost:8000" target="_blank">🔗 后端首页</a>
+            <a href="http://localhost:5173" target="_blank">🏠 前端首页</a>
+        </div>
+    </div>
+    
+    <script>
+        // 检查后端 API
+        async function checkAPI() {
+            try {
+                const response = await fetch('http://localhost:8000/health');
+                if (response.ok) {
+                    document.getElementById('api-status').textContent = '✓ 正常运行';
+                } else {
+                    document.getElementById('api-status').textContent = '✗ 返回错误';
+                }
+            } catch (error) {
+                document.getElementById('api-status').textContent = '✗ 无法连接';
+            }
+        }
+        
+        // 测试登录
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!username || !password) {
+                showResult('请输入用户名和密码', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✓ 登录成功！\n\nToken: ${data.access_token.substring(0, 50)}...`, 'success');
+                } else if (response.status === 401) {
+                    showResult('✗ 用户名或密码错误', 'error');
+                } else {
+                    const error = await response.json();
+                    showResult(`✗ 登录失败: ${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showResult(`✗ 连接失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 显示结果
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${type}`;
+        }
+        
+        // 清除结果
+        function clearResult() {
+            document.getElementById('result').className = 'result';
+            document.getElementById('result').textContent = '';
+        }
+        
+        // 页面加载时检查 API
+        window.addEventListener('load', checkAPI);
+    </script>
+</body>
+</html>
+
