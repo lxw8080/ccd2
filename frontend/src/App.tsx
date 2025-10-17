@@ -5,7 +5,9 @@ import Login from './pages/Login'
 import CustomerList from './pages/CustomerList'
 import CustomerDetail from './pages/CustomerDetail'
 import ProductList from './pages/ProductList'
+import DocumentTypeManagement from './pages/DocumentTypeManagement'
 import BatchImport from './pages/BatchImport'
+import DocumentManagement from './pages/DocumentManagement'
 import { useAuthStore } from './store/authStore'
 
 // 创建React Query客户端
@@ -42,7 +44,9 @@ function App() {
             <Route path="customers" element={<CustomerList />} />
             <Route path="customers/:id" element={<CustomerDetail />} />
             <Route path="products" element={<ProductList />} />
+            <Route path="document-types" element={<DocumentTypeManagement />} />
             <Route path="import" element={<BatchImport />} />
+            <Route path="documents" element={<DocumentManagement />} />
           </Route>
         </Routes>
       </BrowserRouter>

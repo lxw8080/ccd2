@@ -50,10 +50,18 @@ class Settings(BaseSettings):
     
     # 日志配置
     LOG_LEVEL: str = "INFO"
-    
+    LOG_FILE_PATH: str = "logs/server.log"
+
+    # API配置
+    API_KEY: str = ""
+
+    # Flask环境
+    FLASK_ENV: str = "development"
+
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "allow"  # 允许额外的环境变量
 
 
 # 创建全局配置实例

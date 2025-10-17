@@ -30,14 +30,43 @@ router = APIRouter(prefix="/products", tags=["Loan Products"])
 # Document Types
 @router.get("/document-types", response_model=List[DocumentTypeResponse])
 async def list_document_types(
+    is_active: bool = None,
+    category: str = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
     """
-    List all document types
+    List all document types with optional filters
+    所有登录用户都可以查看资料类型列表
     """
-    document_types = db.query(DocumentType).all()
+    query = db.query(DocumentType).order_by(DocumentType.sort_order, DocumentType.name)
+
+    if is_active is not None:
+        query = query.filter(DocumentType.is_active == is_active)
+
+    if category:
+        query = query.filter(DocumentType.category == category)
+
+    document_types = query.all()
     return document_types
+
+
+@router.get("/document-types/{document_type_id}", response_model=DocumentTypeResponse)
+async def get_document_type(
+    document_type_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Get a specific document type by ID
+    """
+    document_type = db.query(DocumentType).filter(DocumentType.id == document_type_id).first()
+    if not document_type:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document type not found"
+        )
+    return document_type
 
 
 @router.post("/document-types", response_model=DocumentTypeResponse, status_code=status.HTTP_201_CREATED)
@@ -56,13 +85,75 @@ async def create_document_type(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Document type code already exists"
         )
-    
+
     document_type = DocumentType(**document_type_data.model_dump())
     db.add(document_type)
     db.commit()
     db.refresh(document_type)
-    
+
     return document_type
+
+
+@router.put("/document-types/{document_type_id}", response_model=DocumentTypeResponse)
+async def update_document_type(
+    document_type_id: UUID,
+    document_type_data: DocumentTypeUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("product.manage"))
+):
+    """
+    Update a document type
+    """
+    document_type = db.query(DocumentType).filter(DocumentType.id == document_type_id).first()
+    if not document_type:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document type not found"
+        )
+
+    # Update fields
+    update_data = document_type_data.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(document_type, field, value)
+
+    db.commit()
+    db.refresh(document_type)
+
+    return document_type
+
+
+@router.delete("/document-types/{document_type_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_document_type(
+    document_type_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("product.manage"))
+):
+    """
+    Delete a document type
+    """
+    document_type = db.query(DocumentType).filter(DocumentType.id == document_type_id).first()
+    if not document_type:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document type not found"
+        )
+
+    # Check if document type is being used
+    from ..models.document import CustomerDocument
+    existing_docs = db.query(CustomerDocument).filter(
+        CustomerDocument.document_type_id == document_type_id
+    ).first()
+
+    if existing_docs:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete document type that is being used by customer documents"
+        )
+
+    db.delete(document_type)
+    db.commit()
+
+    return None
 
 
 # Loan Products

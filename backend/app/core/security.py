@@ -3,8 +3,7 @@
 """
 from datetime import datetime, timedelta
 from typing import Optional
-import jwt
-from jwt import InvalidTokenError
+from jose import jwt, JWTError as InvalidTokenError
 import hashlib
 import secrets
 from app.config import settings

@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
-import { Table, Button, Input, Space, Tag, message, Modal, Form, Select } from 'antd'
-import { PlusOutlined, SearchOutlined, EyeOutlined } from '@ant-design/icons'
+import { Table, Button, Input, Space, Tag, message, Modal, Form, Select, Card, List, Grid, Row, Col } from 'antd'
+import { PlusOutlined, SearchOutlined, EyeOutlined, PhoneOutlined, IdcardOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../services/api'
 import type { Customer, LoanProduct, PaginatedResponse } from '../types'
 
 const { Search } = Input
+const { useBreakpoint } = Grid
 
 const CustomerList: React.FC = () => {
   const [page, setPage] = useState(1)
@@ -16,6 +17,10 @@ const CustomerList: React.FC = () => {
   const [form] = Form.useForm()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const screens = useBreakpoint()
+
+  // 判断是否为移动端
+  const isMobile = !screens.md
 
   // Fetch customers
   const { data, isLoading } = useQuery<PaginatedResponse<Customer>>({
@@ -133,39 +138,114 @@ const CustomerList: React.FC = () => {
     })
   }
 
+  const getStatusTag = (status: string) => {
+    const colorMap: Record<string, string> = {
+      pending: 'default',
+      collecting: 'processing',
+      completed: 'success',
+      rejected: 'error',
+    }
+    const textMap: Record<string, string> = {
+      pending: '待处理',
+      collecting: '收集中',
+      completed: '已完成',
+      rejected: '已拒绝',
+    }
+    return <Tag color={colorMap[status]}>{textMap[status] || status}</Tag>
+  }
+
   return (
     <div>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between' }}>
-        <Space>
-          <Search
-            placeholder="搜索客户编号、姓名、手机号"
-            allowClear
-            style={{ width: 300 }}
-            onSearch={setSearch}
-          />
-        </Space>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>
+      <div style={{
+        marginBottom: 16,
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? 12 : 0,
+        justifyContent: 'space-between'
+      }}>
+        <Search
+          placeholder="搜索客户编号、姓名、手机号"
+          allowClear
+          style={{ width: isMobile ? '100%' : 300 }}
+          onSearch={setSearch}
+        />
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setIsModalOpen(true)}
+          block={isMobile}
+        >
           新建客户
         </Button>
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={data?.items || []}
-        rowKey="id"
-        loading={isLoading}
-        pagination={{
-          current: page,
-          pageSize: pageSize,
-          total: data?.total || 0,
-          showSizeChanger: true,
-          showTotal: (total) => `共 ${total} 条`,
-          onChange: (page, pageSize) => {
-            setPage(page)
-            setPageSize(pageSize)
-          },
-        }}
-      />
+      {/* 桌面端表格视图 */}
+      {!isMobile && (
+        <Table
+          columns={columns}
+          dataSource={data?.items || []}
+          rowKey="id"
+          loading={isLoading}
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: data?.total || 0,
+            showSizeChanger: true,
+            showTotal: (total) => `共 ${total} 条`,
+            onChange: (page, pageSize) => {
+              setPage(page)
+              setPageSize(pageSize)
+            },
+          }}
+        />
+      )}
+
+      {/* 移动端卡片视图 */}
+      {isMobile && (
+        <List
+          loading={isLoading}
+          dataSource={data?.items || []}
+          renderItem={(customer: Customer) => (
+            <Card
+              style={{ marginBottom: 12 }}
+              onClick={() => navigate(`/customers/${customer.id}`)}
+            >
+              <Row gutter={[8, 8]}>
+                <Col span={24}>
+                  <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                    <strong>{customer.name}</strong>
+                    {getStatusTag(customer.status)}
+                  </Space>
+                </Col>
+                <Col span={24}>
+                  <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                    <div>
+                      <IdcardOutlined /> {customer.customer_no}
+                    </div>
+                    <div>
+                      <PhoneOutlined /> {customer.phone || '未填写'}
+                    </div>
+                    <div>
+                      产品: {customer.product?.name || '未选择'}
+                    </div>
+                  </Space>
+                </Col>
+              </Row>
+            </Card>
+          )}
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: data?.total || 0,
+            onChange: (page, pageSize) => {
+              setPage(page)
+              setPageSize(pageSize)
+            },
+            showSizeChanger: false,
+            simple: true,
+          }}
+        />
+      )}
 
       <Modal
         title="新建客户"

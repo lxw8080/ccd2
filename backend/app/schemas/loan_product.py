@@ -11,8 +11,15 @@ from uuid import UUID
 class DocumentTypeBase(BaseModel):
     code: str = Field(..., max_length=50, description="Document type code")
     name: str = Field(..., max_length=100, description="Document type name")
-    category: Optional[str] = Field(None, max_length=50, description="Category")
+    category: Optional[str] = Field(None, max_length=50, description="Category: identity, financial, credit, other")
     description: Optional[str] = None
+    is_required: bool = Field(False, description="是否必须上传")
+    allowed_file_types: Optional[str] = Field(None, description="允许的文件类型，逗号分隔，如：jpg,png,pdf")
+    max_file_size: int = Field(10485760, description="最大文件大小（字节），默认10MB")
+    min_files: int = Field(1, ge=1, description="最少文件数量")
+    max_files: int = Field(1, ge=1, description="最多文件数量")
+    is_active: bool = Field(True, description="是否启用")
+    sort_order: int = Field(0, description="排序顺序")
 
 
 class DocumentTypeCreate(DocumentTypeBase):
@@ -23,11 +30,19 @@ class DocumentTypeUpdate(BaseModel):
     name: Optional[str] = Field(None, max_length=100)
     category: Optional[str] = Field(None, max_length=50)
     description: Optional[str] = None
+    is_required: Optional[bool] = None
+    allowed_file_types: Optional[str] = None
+    max_file_size: Optional[int] = Field(None, ge=1)
+    min_files: Optional[int] = Field(None, ge=1)
+    max_files: Optional[int] = Field(None, ge=1)
+    is_active: Optional[bool] = None
+    sort_order: Optional[int] = None
 
 
 class DocumentTypeResponse(DocumentTypeBase):
     id: UUID
     created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True

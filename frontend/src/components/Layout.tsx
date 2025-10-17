@@ -1,24 +1,28 @@
-import React from 'react'
-import { Layout as AntLayout, Menu, Dropdown, Avatar, Space, Typography } from 'antd'
+import React, { useState, useMemo } from 'react'
+import { Layout as AntLayout, Menu, Dropdown, Avatar, Space, Typography, Drawer, Button, Grid } from 'antd'
 import {
   UserOutlined,
-  FileTextOutlined,
-  TeamOutlined,
-  AppstoreOutlined,
   LogoutOutlined,
   SettingOutlined,
-  UploadOutlined,
+  MenuOutlined,
 } from '@ant-design/icons'
 import { useNavigate, useLocation, Outlet } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { menuConfig, filterMenuByRole, convertToAntdMenuItems } from '../config/menuConfig.tsx'
 
 const { Header, Sider, Content } = AntLayout
 const { Text } = Typography
+const { useBreakpoint } = Grid
 
 const Layout: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, clearAuth } = useAuthStore()
+  const screens = useBreakpoint()
+  const [drawerVisible, setDrawerVisible] = useState(false)
+
+  // 判断是否为移动端
+  const isMobile = !screens.md
 
   const handleLogout = () => {
     clearAuth()
@@ -40,57 +44,94 @@ const Layout: React.FC = () => {
     </Menu>
   )
 
-  const menuItems = [
-    {
-      key: '/customers',
-      icon: <TeamOutlined />,
-      label: '客户管理',
-    },
-    {
-      key: '/import',
-      icon: <UploadOutlined />,
-      label: '批量导入',
-    },
-    {
-      key: '/products',
-      icon: <AppstoreOutlined />,
-      label: '产品管理',
-      hidden: user?.role === 'customer_service',
-    },
-    {
-      key: '/documents',
-      icon: <FileTextOutlined />,
-      label: '资料管理',
-    },
-  ].filter(item => !item.hidden)
+  // 根据用户角色过滤菜单
+  const filteredMenus = useMemo(() => {
+    return filterMenuByRole(menuConfig, user?.role)
+  }, [user?.role])
+
+  // 转换为 Ant Design Menu 组件所需的格式
+  const menuItems = useMemo(() => {
+    return convertToAntdMenuItems(filteredMenus)
+  }, [filteredMenus])
+
+  const handleMenuClick = (key: string) => {
+    navigate(key)
+    if (isMobile) {
+      setDrawerVisible(false)
+    }
+  }
 
   return (
     <AntLayout style={{ minHeight: '100vh' }}>
-      <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px' }}>
-        <div style={{ color: 'white', fontSize: '20px', fontWeight: 'bold' }}>
-          客户资料收集系统
-        </div>
+      <Header style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: isMobile ? '0 16px' : '0 24px'
+      }}>
+        <Space>
+          {isMobile && (
+            <Button
+              type="text"
+              icon={<MenuOutlined />}
+              onClick={() => setDrawerVisible(true)}
+              style={{ color: 'white' }}
+            />
+          )}
+          <div style={{
+            color: 'white',
+            fontSize: isMobile ? '16px' : '20px',
+            fontWeight: 'bold'
+          }}>
+            {isMobile ? '资料收集' : '客户资料收集系统'}
+          </div>
+        </Space>
         <Dropdown overlay={userMenu} placement="bottomRight">
           <Space style={{ cursor: 'pointer' }}>
-            <Avatar icon={<UserOutlined />} />
-            <Text style={{ color: 'white' }}>{user?.full_name || user?.username}</Text>
+            <Avatar icon={<UserOutlined />} size={isMobile ? 'small' : 'default'} />
+            {!isMobile && (
+              <Text style={{ color: 'white' }}>{user?.full_name || user?.username}</Text>
+            )}
           </Space>
         </Dropdown>
       </Header>
+
       <AntLayout>
-        <Sider width={200} theme="light">
-          <Menu
-            mode="inline"
-            selectedKeys={[location.pathname]}
-            style={{ height: '100%', borderRight: 0 }}
-            items={menuItems}
-            onClick={({ key }) => navigate(key)}
-          />
-        </Sider>
-        <AntLayout style={{ padding: '24px' }}>
+        {/* 桌面端侧边栏 */}
+        {!isMobile && (
+          <Sider width={200} theme="light">
+            <Menu
+              mode="inline"
+              selectedKeys={[location.pathname]}
+              style={{ height: '100%', borderRight: 0 }}
+              items={menuItems}
+              onClick={({ key }) => handleMenuClick(key)}
+            />
+          </Sider>
+        )}
+
+        {/* 移动端抽屉菜单 */}
+        {isMobile && (
+          <Drawer
+            title="菜单"
+            placement="left"
+            onClose={() => setDrawerVisible(false)}
+            open={drawerVisible}
+            bodyStyle={{ padding: 0 }}
+          >
+            <Menu
+              mode="inline"
+              selectedKeys={[location.pathname]}
+              items={menuItems}
+              onClick={({ key }) => handleMenuClick(key)}
+            />
+          </Drawer>
+        )}
+
+        <AntLayout style={{ padding: isMobile ? '12px' : '24px' }}>
           <Content
             style={{
-              padding: 24,
+              padding: isMobile ? 16 : 24,
               margin: 0,
               minHeight: 280,
               background: '#fff',
