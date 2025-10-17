@@ -48,12 +48,18 @@ class CustomerDocument(Base):
     note = Column(Text)  # 备注
     created_at = Column(DateTime(timezone=True))
     updated_at = Column(DateTime(timezone=True))
-    
+
+    # 审核相关字段（与外部数据库表结构匹配）
+    reviewed_by = Column(String(36), ForeignKey("users.id"))
+    reviewed_at = Column(DateTime(timezone=True))
+    review_note = Column(Text)
+
     # 关系
     customer = relationship("Customer", back_populates="documents")
     document_type = relationship("DocumentType")
-    uploader = relationship("User")
-    
+    uploader = relationship("User", foreign_keys=[uploaded_by])
+    reviewer = relationship("User", foreign_keys=[reviewed_by])
+
     def __repr__(self):
         return f"<CustomerDocument {self.file_name}>"
 

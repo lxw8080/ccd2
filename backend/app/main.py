@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Import routers
-from app.api import auth, products, customers, documents, websocket, import_export
+from app.api import auth, products, customers, documents, websocket, import_export, dashboard
 
 # 创建FastAPI应用
 app = FastAPI(
@@ -40,6 +40,7 @@ app.include_router(customers.router, prefix="/api")
 app.include_router(documents.router, prefix="/api")
 app.include_router(websocket.router, prefix="/api")
 app.include_router(import_export.router, prefix="/api")
+app.include_router(dashboard.router, prefix="/api")
 
 
 # 全局异常处理器

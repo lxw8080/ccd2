@@ -2,7 +2,7 @@
 Loan Product API Routes
 """
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from uuid import UUID
 
@@ -21,6 +21,7 @@ from ..schemas.loan_product import (
     ProductDocumentRequirementCreate,
     ProductDocumentRequirementUpdate,
 )
+from ..schemas.common import PaginatedResponse
 from ..core.dependencies import get_current_active_user, require_permission
 
 
@@ -157,21 +158,38 @@ async def delete_document_type(
 
 
 # Loan Products
-@router.get("/", response_model=List[LoanProductSimple])
+@router.get("/", response_model=PaginatedResponse[LoanProductSimple])
 async def list_products(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     is_active: bool = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
     """
-    List all loan products
+    List all loan products with pagination
     """
     query = db.query(LoanProduct)
     if is_active is not None:
         query = query.filter(LoanProduct.is_active == is_active)
-    
-    products = query.all()
-    return products
+
+    # Get total count
+    total = query.count()
+
+    # Apply pagination
+    skip = (page - 1) * page_size
+    products = query.offset(skip).limit(page_size).all()
+
+    # Calculate total pages
+    total_pages = (total + page_size - 1) // page_size
+
+    return PaginatedResponse(
+        items=products,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages
+    )
 
 
 @router.get("/{product_id}", response_model=LoanProductResponse)

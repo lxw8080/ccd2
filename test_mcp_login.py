@@ -149,12 +149,31 @@ class APITester:
         """测试获取客户列表"""
         print_test("测试获取客户列表...")
         try:
-            response = self.session.get(f"{self.base_url}/api/customers")
-            
+            response = self.session.get(f"{self.base_url}/api/customers?page=1&page_size=20")
+
             if response.status_code == 200:
                 data = response.json()
-                count = len(data) if isinstance(data, list) else 0
-                print_success(f"获取客户列表成功! (共 {count} 个)")
+                # API返回分页对象，包含 items, total, page 等字段
+                if isinstance(data, dict):
+                    total = data.get('total', 0)
+                    items = data.get('items', [])
+                    count = len(items)
+                    print_success(f"获取客户列表成功! (总数: {total}, 当前页: {count} 个)")
+
+                    # 显示客户详情
+                    if items:
+                        print_info("客户列表:")
+                        for customer in items[:5]:  # 只显示前5个
+                            print(f"    - {customer.get('customer_no')}: {customer.get('name')} ({customer.get('status')})")
+                            product = customer.get('product', {})
+                            if product:
+                                print(f"      产品: {product.get('name', 'N/A')}")
+                    else:
+                        print_info("客户列表为空")
+                else:
+                    # 兼容旧版本返回列表的情况
+                    count = len(data) if isinstance(data, list) else 0
+                    print_success(f"获取客户列表成功! (共 {count} 个)")
                 return True
             else:
                 print_error(f"获取客户列表失败: {response.status_code}")

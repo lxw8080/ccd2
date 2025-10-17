@@ -3,6 +3,7 @@ Loan Product Schemas
 """
 from typing import Optional, List
 from datetime import datetime
+from uuid import UUID
 from pydantic import BaseModel, Field
 
 
@@ -39,7 +40,7 @@ class DocumentTypeUpdate(BaseModel):
 
 
 class DocumentTypeResponse(DocumentTypeBase):
-    id: str = Field(..., description="Document type ID")
+    id: UUID = Field(..., description="Document type ID")
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -49,7 +50,7 @@ class DocumentTypeResponse(DocumentTypeBase):
 
 # Product Document Requirement
 class ProductDocumentRequirementBase(BaseModel):
-    document_type_id: str = Field(..., description="Document type ID")
+    document_type_id: UUID = Field(..., description="Document type ID")
     is_required: bool = True
     min_files: int = Field(1, ge=0, description="Minimum number of files")
     max_files: int = Field(1, ge=1, description="Maximum number of files")
@@ -70,8 +71,8 @@ class ProductDocumentRequirementUpdate(BaseModel):
 
 
 class ProductDocumentRequirementResponse(ProductDocumentRequirementBase):
-    id: str = Field(..., description="Requirement ID")
-    product_id: str = Field(..., description="Product ID")
+    id: UUID = Field(..., description="Requirement ID")
+    product_id: UUID = Field(..., description="Product ID")
     document_type: Optional[DocumentTypeResponse] = None
 
     class Config:
@@ -97,7 +98,7 @@ class LoanProductUpdate(BaseModel):
 
 
 class LoanProductResponse(LoanProductBase):
-    id: str = Field(..., description="Product ID")
+    id: UUID = Field(..., description="Product ID")
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     document_requirements: List[ProductDocumentRequirementResponse] = []
@@ -108,7 +109,7 @@ class LoanProductResponse(LoanProductBase):
 
 # Simplified response without requirements
 class LoanProductSimple(BaseModel):
-    id: str = Field(..., description="Product ID")
+    id: UUID = Field(..., description="Product ID")
     code: str
     name: str
     is_active: bool

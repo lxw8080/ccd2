@@ -3,7 +3,7 @@ Document Schemas
 """
 from typing import Optional, List
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 from uuid import UUID
 
 
@@ -44,13 +44,19 @@ class CustomerDocumentResponse(CustomerDocumentBase):
     file_url: Optional[str] = None  # Signed URL for download
     status: str
     uploaded_by: Optional[UUID] = None
-    uploaded_at: datetime
+    created_at: datetime  # Database field - represents upload time
     reviewed_by: Optional[UUID] = None
     reviewed_at: Optional[datetime] = None
     review_note: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def uploaded_at(self) -> datetime:
+        """Computed field: alias for created_at to maintain API compatibility"""
+        return self.created_at
 
 
 # File Upload Response
