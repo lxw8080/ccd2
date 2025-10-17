@@ -2,6 +2,7 @@
 导入记录模型
 """
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, JSON, Text
+from sqlalchemy.sql import func
 import uuid
 from app.database import Base
 
@@ -17,7 +18,7 @@ class ImportRecord(Base):
     failed_rows = Column(Integer)
     error_details = Column(JSON)  # 使用通用 JSON 类型，支持 SQLite 和 PostgreSQL
     imported_by = Column(String(36), ForeignKey("users.id"))
-    created_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), default=func.now())
     
     def __repr__(self):
         return f"<ImportRecord {self.file_name}>"

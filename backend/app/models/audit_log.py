@@ -2,6 +2,7 @@
 审计日志模型
 """
 from sqlalchemy import Column, String, DateTime, ForeignKey, JSON
+from sqlalchemy.sql import func
 import uuid
 from app.database import Base
 
@@ -16,7 +17,7 @@ class AuditLog(Base):
     action = Column(String(50), nullable=False)  # upload, delete, approve, reject, create, update
     details = Column(JSON)  # 使用通用 JSON 类型，支持 SQLite 和 PostgreSQL
     ip_address = Column(String(50))
-    created_at = Column(DateTime(timezone=True), index=True)
+    created_at = Column(DateTime(timezone=True), default=func.now(), index=True)
     
     def __repr__(self):
         return f"<AuditLog {self.action} by {self.user_id}>"

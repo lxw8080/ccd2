@@ -155,7 +155,9 @@ class StorageService:
         """
         if self.storage_type == "local":
             # For local storage, return a relative URL
-            return f"/api/files/{file_path}"
+            # Convert path to use forward slashes for URLs (cross-platform)
+            url_path = Path(file_path).as_posix()
+            return f"/api/files/{url_path}"
         elif self.storage_type == "oss":
             return self._get_oss_url(file_path, expires_in)
         elif self.storage_type == "minio":

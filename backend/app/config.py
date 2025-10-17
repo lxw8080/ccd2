@@ -3,6 +3,8 @@
 """
 from pydantic_settings import BaseSettings
 from typing import List
+from pathlib import Path
+import os
 
 
 class Settings(BaseSettings):
@@ -29,7 +31,8 @@ class Settings(BaseSettings):
     
     # 文件存储配置
     STORAGE_TYPE: str = "local"  # local, oss, minio
-    UPLOAD_DIR: str = "./uploads"
+    # Use absolute path based on project root for cross-platform compatibility
+    UPLOAD_DIR: str = str(Path(__file__).parent.parent.parent / "uploads")
     
     # 阿里云OSS配置
     OSS_ACCESS_KEY_ID: str = ""

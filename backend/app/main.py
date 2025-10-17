@@ -3,11 +3,13 @@ FastAPI主应用
 """
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.database import engine, Base
 import traceback
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +43,11 @@ app.include_router(documents.router, prefix="/api")
 app.include_router(websocket.router, prefix="/api")
 app.include_router(import_export.router, prefix="/api")
 app.include_router(dashboard.router, prefix="/api")
+
+# Mount static files for uploaded documents
+upload_dir = Path(settings.UPLOAD_DIR)
+upload_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/api/files", StaticFiles(directory=str(upload_dir)), name="files")
 
 
 # 全局异常处理器

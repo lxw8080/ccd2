@@ -2,6 +2,7 @@
 贷款产品模型
 """
 from sqlalchemy import Column, String, Boolean, Integer, DateTime, ForeignKey, Text
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import uuid
 from app.database import Base
@@ -16,8 +17,8 @@ class LoanProduct(Base):
     name = Column(String(100), nullable=False)
     description = Column(Text)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True))
-    updated_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
     
     # 关系
     customers = relationship("Customer", back_populates="product")

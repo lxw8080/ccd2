@@ -2,6 +2,7 @@
 用户模型
 """
 from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy.sql import func
 import uuid
 from app.database import Base
 
@@ -17,8 +18,8 @@ class User(Base):
     role = Column(String(20), nullable=False, index=True)  # customer_service, reviewer, admin
     department = Column(String(100))
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True))
-    updated_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
     
     def __repr__(self):
         return f"<User {self.username}>"

@@ -3,6 +3,7 @@
 """
 from sqlalchemy import Column, String, Boolean, Integer, BigInteger, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 import uuid
 from app.database import Base
 
@@ -23,8 +24,8 @@ class DocumentType(Base):
     max_files = Column(Integer, default=1)  # 最多文件数量
     is_active = Column(Boolean, default=True)  # 是否启用
     sort_order = Column(Integer, default=0)
-    created_at = Column(DateTime(timezone=True))
-    updated_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
     def __repr__(self):
         return f"<DocumentType {self.code} - {self.name}>"
@@ -46,8 +47,8 @@ class CustomerDocument(Base):
     status = Column(String(20), default="pending")  # pending, approved, rejected
     reject_reason = Column(Text)
     note = Column(Text)  # 备注
-    created_at = Column(DateTime(timezone=True))
-    updated_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
     # 审核相关字段（与外部数据库表结构匹配）
     reviewed_by = Column(String(36), ForeignKey("users.id"))

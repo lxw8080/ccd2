@@ -2,6 +2,7 @@
 客户模型
 """
 from sqlalchemy import Column, String, DateTime, ForeignKey
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import uuid
 from app.database import Base
@@ -22,8 +23,8 @@ class Customer(Base):
     status = Column(String(20), default="collecting", index=True)
     note = Column(String(500))
     created_by = Column(String(36), ForeignKey("users.id"))
-    created_at = Column(DateTime(timezone=True))
-    updated_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
     
     # 关系
     product = relationship("LoanProduct", back_populates="customers")
@@ -41,7 +42,7 @@ class CustomerAssignment(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     customer_id = Column(String(36), ForeignKey("customers.id"), nullable=False)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
-    assigned_at = Column(DateTime(timezone=True))
+    assigned_at = Column(DateTime(timezone=True), default=func.now())
     
     # 关系
     customer = relationship("Customer", back_populates="assignments")
