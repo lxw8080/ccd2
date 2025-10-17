@@ -13,9 +13,9 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
     
-    # 数据库配置
+    # 数据库配置（默认使用外部数据库；通过 .env 覆盖 DATABASE_URL）
     DATABASE_URL: str = "postgresql://ccd_user:ccd_password@localhost:5432/ccd_db"
-    
+
     # Redis配置
     REDIS_URL: str = "redis://localhost:6379/0"
     

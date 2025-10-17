@@ -39,6 +39,8 @@ ENV/
 .env.local
 .env.*.local
 
+backend/.env
+
 # Database
 *.db
 *.sqlite

@@ -23,10 +23,11 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# 配置CORS
+# 配置CORS（允许本地局域网 5173 端口，便于手机端通过前端开发服务器访问）
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
+    allow_origin_regex=r"http://.*:5173",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

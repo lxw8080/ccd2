@@ -3,6 +3,7 @@ Authentication API Routes
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from ..database import get_db
 from ..models.user import User
@@ -32,19 +33,22 @@ async def register(
     
     # Create new user
     hashed_password = get_password_hash(user_data.password)
+    now = datetime.utcnow()
     new_user = User(
         username=user_data.username,
         password_hash=hashed_password,
         real_name=user_data.full_name,
         role=user_data.role,
         department=user_data.department,
-        is_active=True
+        is_active=True,
+        created_at=now,
+        updated_at=now,
     )
-    
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    
+
     return new_user
 
 

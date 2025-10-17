@@ -3,16 +3,31 @@
 创建数据库脚本
 连接到 PostgreSQL 服务器并创建新数据库
 """
+import os
+from urllib.parse import urlparse
 import psycopg2
 from psycopg2 import sql
 import sys
 
-# 数据库连接参数
-DB_HOST = "115.190.29.10"
-DB_PORT = 5433
-DB_USER = "flask_user"
-DB_PASSWORD = "flask_password"
-DB_NAME = "ccd_db_new"  # 新数据库名称
+# 从环境变量读取数据库连接信息：优先使用 DATABASE_URL，其次使用 DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    parsed = urlparse(DATABASE_URL)
+    DB_HOST = parsed.hostname or "localhost"
+    DB_PORT = parsed.port or 5432
+    DB_USER = parsed.username or ""
+    DB_PASSWORD = parsed.password or ""
+    DB_NAME = (parsed.path or "").lstrip("/") or ""
+else:
+    DB_HOST = os.getenv("DB_HOST", "localhost")
+    DB_PORT = int(os.getenv("DB_PORT", "5432"))
+    DB_USER = os.getenv("DB_USER", "")
+    DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+    DB_NAME = os.getenv("DB_NAME", "")
+
+if not all([DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME]):
+    print("❌ 缺少数据库环境变量，请设置 DATABASE_URL 或 DB_HOST/DB_PORT/DB_USER/DB_PASSWORD/DB_NAME")
+    sys.exit(2)
 
 def create_database():
     """创建数据库"""
