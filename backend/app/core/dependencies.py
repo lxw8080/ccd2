@@ -2,7 +2,6 @@
 FastAPI Dependencies
 """
 from typing import Optional
-from uuid import UUID
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -36,9 +35,9 @@ async def get_current_user(
         user_id_str: str = payload.get("sub")
         if user_id_str is None:
             raise credentials_exception
-        # Convert string to UUID
-        user_id = UUID(user_id_str)
-    except (InvalidTokenError, Exception):
+        # user_id 现在是字符串，直接使用
+        user_id = user_id_str
+    except (InvalidTokenError, Exception) as e:
         raise credentials_exception
 
     user = db.query(User).filter(User.id == user_id).first()
@@ -100,4 +99,3 @@ def require_role(role: str):
         return current_user
     
     return role_checker
-

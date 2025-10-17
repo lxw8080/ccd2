@@ -4,9 +4,14 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 
+// 在开发环境默认走 Vite 代理；生产或自定义时使用环境变量
+const baseURL = import.meta.env.VITE_API_BASE_URL
+  ? import.meta.env.VITE_API_BASE_URL
+  : (import.meta.env.DEV ? '' : 'http://localhost:8000')
+
 // 创建axios实例
 const api: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  baseURL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

@@ -4,7 +4,6 @@ Loan Product Schemas
 from typing import Optional, List
 from datetime import datetime
 from pydantic import BaseModel, Field
-from uuid import UUID
 
 
 # Document Type Base
@@ -40,9 +39,9 @@ class DocumentTypeUpdate(BaseModel):
 
 
 class DocumentTypeResponse(DocumentTypeBase):
-    id: UUID
-    created_at: datetime
-    updated_at: datetime
+    id: str = Field(..., description="Document type ID")
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -50,7 +49,7 @@ class DocumentTypeResponse(DocumentTypeBase):
 
 # Product Document Requirement
 class ProductDocumentRequirementBase(BaseModel):
-    document_type_id: UUID
+    document_type_id: str = Field(..., description="Document type ID")
     is_required: bool = True
     min_files: int = Field(1, ge=0, description="Minimum number of files")
     max_files: int = Field(1, ge=1, description="Maximum number of files")
@@ -71,9 +70,9 @@ class ProductDocumentRequirementUpdate(BaseModel):
 
 
 class ProductDocumentRequirementResponse(ProductDocumentRequirementBase):
-    id: UUID
-    product_id: UUID
-    document_type: DocumentTypeResponse
+    id: str = Field(..., description="Requirement ID")
+    product_id: str = Field(..., description="Product ID")
+    document_type: Optional[DocumentTypeResponse] = None
 
     class Config:
         from_attributes = True
@@ -98,9 +97,9 @@ class LoanProductUpdate(BaseModel):
 
 
 class LoanProductResponse(LoanProductBase):
-    id: UUID
-    created_at: datetime
-    updated_at: datetime
+    id: str = Field(..., description="Product ID")
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     document_requirements: List[ProductDocumentRequirementResponse] = []
 
     class Config:
@@ -109,11 +108,10 @@ class LoanProductResponse(LoanProductBase):
 
 # Simplified response without requirements
 class LoanProductSimple(BaseModel):
-    id: UUID
+    id: str = Field(..., description="Product ID")
     code: str
     name: str
     is_active: bool
 
     class Config:
         from_attributes = True
-

@@ -2,8 +2,6 @@
 文档模型
 """
 from sqlalchemy import Column, String, Boolean, Integer, BigInteger, DateTime, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import uuid
 from app.database import Base
@@ -13,7 +11,7 @@ class DocumentType(Base):
     """资料类型表"""
     __tablename__ = "document_types"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     code = Column(String(50), unique=True, nullable=False, index=True)
     name = Column(String(100), nullable=False)
     category = Column(String(50))  # identity, financial, credit, other
@@ -25,8 +23,8 @@ class DocumentType(Base):
     max_files = Column(Integer, default=1)  # 最多文件数量
     is_active = Column(Boolean, default=True)  # 是否启用
     sort_order = Column(Integer, default=0)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True))
+    updated_at = Column(DateTime(timezone=True))
 
     def __repr__(self):
         return f"<DocumentType {self.code} - {self.name}>"
@@ -36,34 +34,26 @@ class CustomerDocument(Base):
     """客户资料文件表"""
     __tablename__ = "customer_documents"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    customer_id = Column(UUID(as_uuid=True), ForeignKey("customers.id"), nullable=False, index=True)
-    document_type_id = Column(UUID(as_uuid=True), ForeignKey("document_types.id"), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    customer_id = Column(String(36), ForeignKey("customers.id"), nullable=False, index=True)
+    document_type_id = Column(String(36), ForeignKey("document_types.id"), nullable=False)
     file_name = Column(String(255), nullable=False)
     file_path = Column(String(500), nullable=False)
     file_size = Column(BigInteger)
     file_type = Column(String(50))
-    uploaded_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    uploaded_by = Column(String(36), ForeignKey("users.id"), nullable=False)
     upload_source = Column(String(20))  # mobile, pc, scanner
     status = Column(String(20), default="pending")  # pending, approved, rejected
     reject_reason = Column(Text)
     note = Column(Text)  # 备注
-    reviewed_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))  # 审核人
-    reviewed_at = Column(DateTime(timezone=True))  # 审核时间
-    review_note = Column(Text)  # 审核备注
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
+    created_at = Column(DateTime(timezone=True))
+    updated_at = Column(DateTime(timezone=True))
+    
     # 关系
     customer = relationship("Customer", back_populates="documents")
     document_type = relationship("DocumentType")
-    uploader = relationship("User", foreign_keys=[uploaded_by])
-    reviewer = relationship("User", foreign_keys=[reviewed_by])
-
-    # 添加属性别名以兼容 API
-    @property
-    def uploaded_at(self):
-        return self.created_at
-
+    uploader = relationship("User")
+    
     def __repr__(self):
         return f"<CustomerDocument {self.file_name}>"
 
