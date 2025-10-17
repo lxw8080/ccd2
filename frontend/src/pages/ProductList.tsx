@@ -12,22 +12,25 @@ const ProductList: React.FC = () => {
   const queryClient = useQueryClient()
 
   // Fetch products
-  const { data: products, isLoading } = useQuery<LoanProduct[]>({
+  const { data: productsData, isLoading } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
-      const response = await api.get('/api/products')
+      const response = await api.get('/api/products/')
       return response.data
     },
   })
+
+  // Extract items from paginated response
+  const products = productsData?.items || []
 
   // Create/Update mutation
   const saveMutation = useMutation({
     mutationFn: async (values: any) => {
       if (editingProduct) {
-        const response = await api.put(`/api/products/${editingProduct.id}`, values)
+        const response = await api.put(`/api/products/${editingProduct.id}/`, values)
         return response.data
       } else {
-        const response = await api.post('/api/products', values)
+        const response = await api.post('/api/products/', values)
         return response.data
       }
     },

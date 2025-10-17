@@ -32,24 +32,27 @@ const CustomerList: React.FC = () => {
       })
       if (search) params.append('search', search)
 
-      const response = await api.get(`/api/customers?${params}`)
+      const response = await api.get(`/api/customers/?${params}`)
       return response.data
     },
   })
 
   // Fetch products for form
-  const { data: products } = useQuery<LoanProduct[]>({
+  const { data: productsData } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
-      const response = await api.get('/api/products')
+      const response = await api.get('/api/products/')
       return response.data
     },
   })
 
+  // Extract items from paginated response
+  const products = productsData?.items || []
+
   // Create customer mutation
   const createMutation = useMutation({
     mutationFn: async (values: any) => {
-      const response = await api.post('/api/customers', values)
+      const response = await api.post('/api/customers/', values)
       return response.data
     },
     onSuccess: () => {
