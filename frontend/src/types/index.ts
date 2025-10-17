@@ -42,7 +42,15 @@ export interface DocumentType {
   name: string
   category?: string
   description?: string
+  is_required: boolean
+  allowed_file_types?: string
+  max_file_size: number
+  min_files: number
+  max_files: number
+  is_active: boolean
   sort_order: number
+  created_at: string
+  updated_at: string
 }
 
 // 产品资料要求
@@ -140,3 +148,43 @@ export interface ApiResponse<T = any> {
   error?: string
 }
 
+// 详细完整性检查结果
+export interface DetailedDocumentInfo {
+  id: string
+  file_name: string
+  file_path: string
+  file_size: number
+  file_url: string
+  status: 'pending' | 'approved' | 'rejected'
+  uploaded_at: string | null
+  reviewed_at: string | null
+  review_note?: string
+  reject_reason?: string
+}
+
+export interface DetailedDocumentTypeInfo {
+  id: string
+  code: string
+  name: string
+  category?: string
+  description?: string
+  is_required: boolean
+  min_files: number
+  max_files: number
+  max_file_size: number
+  allowed_file_types: string
+  uploaded_count: number
+  pending_count: number
+  approved_count: number
+  rejected_count: number
+  upload_status: 'not_uploaded' | 'uploaded' | 'pending' | 'approved' | 'rejected'
+  documents: DetailedDocumentInfo[]
+}
+
+export interface DetailedCompletenessResult {
+  customer_id: string
+  total_required: number
+  uploaded_required: number
+  approved_required: number
+  document_types: DetailedDocumentTypeInfo[]
+}

@@ -22,20 +22,25 @@ class StorageService:
         if self.storage_type == "local":
             self.upload_dir.mkdir(parents=True, exist_ok=True)
     
-    def generate_file_path(self, original_filename: str, customer_id: str) -> str:
+    def generate_file_path(self, original_filename: str, customer_id: str, document_type_code: str = None) -> str:
         """
         Generate a unique file path
+        Format: {customer_id}/{document_type_code}/{uuid}{ext}
         """
         # Get file extension
-        ext = Path(original_filename).suffix
-        
+        ext = Path(original_filename).suffix.lower()
+
         # Generate unique filename
         unique_filename = f"{uuid.uuid4()}{ext}"
-        
-        # Organize by date and customer
-        date_path = datetime.now().strftime("%Y/%m/%d")
-        file_path = f"{customer_id}/{date_path}/{unique_filename}"
-        
+
+        # Organize by customer and document type
+        if document_type_code:
+            file_path = f"{customer_id}/{document_type_code}/{unique_filename}"
+        else:
+            # Fallback to date-based organization
+            date_path = datetime.now().strftime("%Y/%m/%d")
+            file_path = f"{customer_id}/{date_path}/{unique_filename}"
+
         return file_path
     
     async def save_file(
@@ -62,12 +67,24 @@ class StorageService:
         """
         full_path = self.upload_dir / file_path
         full_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         with open(full_path, "wb") as f:
-            content = await file.read()
+            # Read content if it's a file-like object
+            if hasattr(file, 'read'):
+                content = file.read()
+                if hasattr(content, '__await__'):
+                    content = await content
+            else:
+                content = file
             f.write(content)
-        
+
         return file_path
+
+    def get_local_file_path(self, file_path: str) -> Path:
+        """
+        Get the full local file path
+        """
+        return self.upload_dir / file_path
     
     async def _save_oss(self, file: BinaryIO, file_path: str) -> str:
         """

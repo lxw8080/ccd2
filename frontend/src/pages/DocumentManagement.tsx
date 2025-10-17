@@ -4,6 +4,7 @@ import { SearchOutlined, EyeOutlined, CheckOutlined, CloseOutlined, DownloadOutl
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../services/api'
 import type { CustomerDocument } from '../types'
+import FilePreview from '../components/FilePreview'
 
 const { Search } = Input
 const { Option } = Select
@@ -25,6 +26,11 @@ const DocumentManagement: React.FC = () => {
   const [reviewStatus, setReviewStatus] = useState<'approved' | 'rejected'>('approved')
   const [reviewNote, setReviewNote] = useState('')
   const screens = useBreakpoint()
+
+  // 文件预览状态
+  const [previewVisible, setPreviewVisible] = useState(false)
+  const [previewFile, setPreviewFile] = useState<DocumentWithCustomer | null>(null)
+  const [previewFiles, setPreviewFiles] = useState<DocumentWithCustomer[]>([])
 
   // 判断是否为移动端
   const isMobile = !screens.md
@@ -91,11 +97,46 @@ const DocumentManagement: React.FC = () => {
     })
   }
 
-  const handleDownload = (document: DocumentWithCustomer) => {
-    if (document.file_url) {
-      window.open(document.file_url, '_blank')
-    } else {
-      message.warning('文件URL不可用')
+  // Handle preview
+  const handlePreview = (document: DocumentWithCustomer) => {
+    setPreviewFile(document)
+    setPreviewFiles(filteredDocuments)
+    setPreviewVisible(true)
+  }
+
+  // Handle file change in preview
+  const handlePreviewFileChange = (fileId: string) => {
+    const file = previewFiles.find(f => f.id === fileId)
+    if (file) {
+      setPreviewFile(file)
+    }
+  }
+
+  const handleDownload = async (document: DocumentWithCustomer) => {
+    try {
+      const response = await api.get(`/api/documents/download/${document.id}`, {
+        responseType: 'blob',
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', document.file_name)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+
+      message.success('下载成功')
+    } catch (error) {
+      message.error('下载失败')
+    }
+  }
+
+  // Handle download from preview
+  const handleDownloadFromPreview = async () => {
+    if (previewFile) {
+      await handleDownload(previewFile)
     }
   }
 
@@ -167,9 +208,17 @@ const DocumentManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 200,
+      width: 250,
       render: (_: any, record: DocumentWithCustomer) => (
         <Space>
+          <Button
+            type="link"
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => handlePreview(record)}
+          >
+            预览
+          </Button>
           <Button
             type="link"
             size="small"
@@ -182,7 +231,7 @@ const DocumentManagement: React.FC = () => {
             <Button
               type="link"
               size="small"
-              icon={<EyeOutlined />}
+              icon={<CheckOutlined />}
               onClick={() => {
                 setSelectedDocument(record)
                 setReviewModalOpen(true)
@@ -299,6 +348,13 @@ const DocumentManagement: React.FC = () => {
                     <Space>
                       <Button
                         size="small"
+                        icon={<EyeOutlined />}
+                        onClick={() => handlePreview(document)}
+                      >
+                        预览
+                      </Button>
+                      <Button
+                        size="small"
                         icon={<DownloadOutlined />}
                         onClick={() => handleDownload(document)}
                       >
@@ -308,7 +364,7 @@ const DocumentManagement: React.FC = () => {
                         <Button
                           size="small"
                           type="primary"
-                          icon={<EyeOutlined />}
+                          icon={<CheckOutlined />}
                           onClick={() => {
                             setSelectedDocument(document)
                             setReviewModalOpen(true)
@@ -385,6 +441,30 @@ const DocumentManagement: React.FC = () => {
           </Space>
         )}
       </Modal>
+
+      {/* File Preview Modal */}
+      {previewFile && (
+        <FilePreview
+          visible={previewVisible}
+          onClose={() => {
+            setPreviewVisible(false)
+            setPreviewFile(null)
+            setPreviewFiles([])
+          }}
+          fileUrl={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/documents/download/${previewFile.id}?inline=true`}
+          fileName={previewFile.file_name}
+          fileType={previewFile.file_type}
+          files={previewFiles.map(f => ({
+            id: f.id,
+            file_name: f.file_name,
+            file_url: `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/documents/download/${f.id}?inline=true`,
+            file_type: f.file_type,
+          }))}
+          currentFileId={previewFile.id}
+          onFileChange={handlePreviewFileChange}
+          onDownload={handleDownloadFromPreview}
+        />
+      )}
     </div>
   )
 }

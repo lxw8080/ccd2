@@ -35,7 +35,7 @@ class DocumentType(Base):
 class CustomerDocument(Base):
     """客户资料文件表"""
     __tablename__ = "customer_documents"
-    
+
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     customer_id = Column(UUID(as_uuid=True), ForeignKey("customers.id"), nullable=False, index=True)
     document_type_id = Column(UUID(as_uuid=True), ForeignKey("document_types.id"), nullable=False)
@@ -47,13 +47,23 @@ class CustomerDocument(Base):
     upload_source = Column(String(20))  # mobile, pc, scanner
     status = Column(String(20), default="pending")  # pending, approved, rejected
     reject_reason = Column(Text)
+    note = Column(Text)  # 备注
+    reviewed_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))  # 审核人
+    reviewed_at = Column(DateTime(timezone=True))  # 审核时间
+    review_note = Column(Text)  # 审核备注
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
+
     # 关系
     customer = relationship("Customer", back_populates="documents")
     document_type = relationship("DocumentType")
-    uploader = relationship("User")
-    
+    uploader = relationship("User", foreign_keys=[uploaded_by])
+    reviewer = relationship("User", foreign_keys=[reviewed_by])
+
+    # 添加属性别名以兼容 API
+    @property
+    def uploaded_at(self):
+        return self.created_at
+
     def __repr__(self):
         return f"<CustomerDocument {self.file_name}>"
 
