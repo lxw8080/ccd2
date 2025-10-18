@@ -2,18 +2,28 @@
 
 ## 🚀 快速启动
 
-### 一键启动（推荐）
-```bash
-python quick_start.py
+### Windows 一键启动（推荐）
+```powershell
+# PowerShell 脚本（推荐）
+.\start-ccd2.ps1
+
+# 或使用批处理脚本
+start-ccd2.bat
 ```
 
-### 分开启动
+### 跨平台 Python 启动
 ```bash
-# Terminal 1: 后端
-python start_backend.py
+# 一键启动
+python quick_start.py
 
-# Terminal 2: 前端
-python start_frontend.py
+# 分开启动
+python start_backend.py  # Terminal 1: 后端
+python start_frontend.py # Terminal 2: 前端
+```
+
+### Linux/macOS Shell 启动
+```bash
+./start.sh
 ```
 
 ---
@@ -128,9 +138,11 @@ kill -9 <PID>
 
 | 文件 | 内容 |
 |-----|-----|
-| `POSTGRESQL_STARTUP_GUIDE.md` | 详细启动指南 |
-| `PROJECT_STARTUP_SUMMARY.md` | 项目总结 |
-| `COMPLETION_REPORT.md` | 完成报告 |
+| `README.md` | 项目主文档 |
+| `README_POSTGRESQL.md` | PostgreSQL 配置指南 |
+| `WINDOWS_STARTUP_GUIDE.md` | Windows 启动详细指南 |
+| `DEPLOYMENT.md` | 生产环境部署 |
+| `QUICK_REFERENCE.md` | 本文档 - 快速参考 |
 
 ---
 

@@ -1,0 +1,96 @@
+====================================================================
+  CCD2 Docker部署后端崩溃问题 - 修复总结
+====================================================================
+
+问题现象：
+-----------
+后端服务不断重启，日志显示：
+"WARN exited: backend (exit status 3; not expected)"
+
+根本原因：
+-----------
+配置文件中硬编码了错误的数据库地址，导致连接失败。
+
+已完成修复：
+-----------
+✅ 1. 修复了 backend/app/config.py - 移除硬编码配置
+✅ 2. 新增 backend/check_startup.py - 启动健康检查
+✅ 3. 更新 Dockerfile - 集成健康检查
+✅ 4. 更新 docker-entrypoint.sh - 添加启动检查
+✅ 5. 提供完整的部署工具和文档
+
+现在需要做什么：
+----------------
+需要重新构建Docker镜像并使用正确的配置部署。
+
+快速操作步骤：
+--------------
+
+【第1步】在Windows本地重新构建：
+    PowerShell执行：
+    .\rebuild-and-export.ps1
+
+【第2步】传输到服务器：
+    scp ccd2-app-fixed.tar* user@服务器IP:/home/user/
+
+【第3步】在Ubuntu服务器上：
+    1) 加载镜像：
+       docker load -i ccd2-app-fixed.tar
+
+    2) 停止旧容器：
+       docker stop <旧容器名>
+       docker rm <旧容器名>
+
+    3) 运行新容器（重要！使用正确的数据库地址）：
+       docker run -d \
+         --name ccd2-app \
+         -p 80:80 \
+         -e DATABASE_URL="postgresql://用户:密码@数据库IP:端口/数据库" \
+         -e REDIS_URL="redis://RedisIP:6379/0" \
+         -e SECRET_KEY="$(openssl rand -hex 32)" \
+         -v /data/uploads:/app/uploads \
+         ccd2-app:fixed
+
+    4) 查看日志：
+       docker logs -f ccd2-app
+       
+       应该看到：
+       ✅ Database connection: OK
+       ✅ All critical checks passed!
+
+重要提示：
+----------
+❌ 不要使用：DATABASE_URL="...@localhost:5432/..."
+   在Docker中localhost指向容器本身！
+
+✅ 正确使用：DATABASE_URL="...@192.168.1.100:5432/..."
+   使用服务器的实际IP地址！
+
+详细文档：
+----------
+请阅读以下文档了解详细信息：
+
+⭐ 立即修复指南.md          - 快速操作步骤（推荐首先阅读）
+   README_DOCKER_FIX.md     - 完整的修复说明和工具清单
+   DEPLOYMENT_FIX_SUMMARY.md - 问题详细分析和解决方案
+   DOCKER_DEPLOYMENT_QUICKSTART.md - 快速部署指南
+
+部署工具：
+----------
+- rebuild-and-export.ps1 - Windows上构建和导出脚本
+- rebuild-and-export.sh  - Linux上构建和导出脚本
+- deploy.sh              - 服务器上自动部署脚本
+- diagnose-docker.sh     - 诊断工具
+- docker-compose.prod.yml - 生产环境配置
+
+验证成功：
+----------
+部署成功后应该：
+✅ 容器状态为Up（不再重启）
+✅ 可以访问 http://服务器IP/
+✅ API返回 {"status":"healthy"}
+
+====================================================================
+开始修复：请先阅读《立即修复指南.md》
+====================================================================
+

@@ -1,0 +1,111 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+CLEANUP_SUMMARY_*.md
+CROSS_PLATFORM_TESTING_GUIDE.md
+DEPLOYMENT.md
+PDF_PREVIEW_QUICK_GUIDE.md
+POWERSHELL_SCRIPT_TEST_REPORT.md
+QUICK_REFERENCE.md
+README_POSTGRESQL.md
+REMOVALS.md
+START_SCRIPT_TEST_REPORT.md
+VITE_PORT_ISSUE_SOLUTION.md
+WINDOWS_SCRIPTS_SUMMARY.md
+WINDOWS_STARTUP_FINAL_SUMMARY.md
+WINDOWS_STARTUP_GUIDE.md
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+dist
+build
+*.egg
+.pytest_cache
+.coverage
+htmlcov
+.mypy_cache
+.dmypy.json
+dmypy.json
+
+# Virtual environments
+backend/venv
+backend/env
+backend/.venv
+venv
+env
+.venv
+
+# Node
+frontend/node_modules
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs
+*.log
+
+# Test files
+test_files
+backend/tests
+frontend/test.html
+
+# Uploads (will be created in container)
+uploads
+
+# Environment files (will be configured in container)
+.env
+.env.local
+.env.*.local
+
+# Scripts (not needed in production)
+*.bat
+*.ps1
+*.sh
+!docker-entrypoint.sh
+start*.py
+check*.py
+quick_start.py
+verify_configuration.py
+test_*.py
+
+# Docker
+docker-compose.yml
+Dockerfile
+backend/Dockerfile
+frontend/Dockerfile
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Alembic (migrations will be run in container)
+backend/alembic.ini
+backend/alembic
+
+# Temporary files
+*.tmp
+*.temp
+.cache
+

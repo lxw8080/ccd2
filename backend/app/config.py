@@ -13,12 +13,12 @@ class Settings(BaseSettings):
     # 应用信息
     APP_NAME: str = "客户资料收集系统"
     APP_VERSION: str = "1.0.0"
-    DEBUG: bool = True
+    DEBUG: bool = False
     
-    # 数据库配置（从 .env 文件读取，支持外部 PostgreSQL）
-    DATABASE_URL: str = "postgresql://flask_user:flask_password@115.190.29.10:5433/ccd_db_new"
+    # 数据库配置（从环境变量读取，必需）
+    DATABASE_URL: str
 
-    # Redis配置
+    # Redis配置（从环境变量读取，可选）
     REDIS_URL: str = "redis://localhost:6379/0"
     
     # JWT配置
