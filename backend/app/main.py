@@ -72,13 +72,13 @@ async def startup_event():
     """应用启动时执行"""
     # 创建所有表（生产环境应使用Alembic迁移）
     Base.metadata.create_all(bind=engine)
-    print(f"✅ {settings.APP_NAME} v{settings.APP_VERSION} 启动成功")
+    print("[OK] {} v{} started successfully".format(settings.APP_NAME, settings.APP_VERSION))
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """应用关闭时执行"""
-    print(f"👋 {settings.APP_NAME} 已关闭")
+    print("[OK] {} shutdown".format(settings.APP_NAME))
 
 
 @app.get("/")

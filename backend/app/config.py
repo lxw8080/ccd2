@@ -15,8 +15,8 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
     
-    # 数据库配置（默认使用外部数据库；通过 .env 覆盖 DATABASE_URL）
-    DATABASE_URL: str = "postgresql://ccd_user:ccd_password@localhost:5432/ccd_db"
+    # 数据库配置（从 .env 文件读取，支持外部 PostgreSQL）
+    DATABASE_URL: str = "postgresql://flask_user:flask_password@115.190.29.10:5433/ccd_db_new"
 
     # Redis配置
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     LOG_FILE_PATH: str = "logs/server.log"
 
     # API配置
-    API_KEY: str = ""
+    API_KEY: str = "lxw8025031"
 
     # Flask环境
     FLASK_ENV: str = "development"

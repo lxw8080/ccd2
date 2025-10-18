@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Modal, Button, Space, Image, Spin, Alert, Typography } from 'antd'
 import { LeftOutlined, RightOutlined, DownloadOutlined, CloseOutlined } from '@ant-design/icons'
+import PDFViewer from './PDFViewer'
 
 const { Text } = Typography
 
@@ -236,11 +237,6 @@ const FilePreview: React.FC<FilePreviewProps> = ({
     if (currentFileType === 'pdf') {
       return (
         <div style={{ textAlign: 'center', position: 'relative' }}>
-          {loading && (
-            <div style={{ padding: '100px 0' }}>
-              <Spin size="large" tip="加载 PDF..." />
-            </div>
-          )}
           {error ? (
             <Alert
               message="加载失败"
@@ -256,19 +252,19 @@ const FilePreview: React.FC<FilePreviewProps> = ({
               }
             />
           ) : blobUrl ? (
-            <iframe
-              src={blobUrl}
-              onLoad={onPdfLoad}
-              onError={onPdfError}
-              style={{
-                width: '100%',
-                height: 'calc(100vh - 250px)',
-                border: 'none',
-                display: loading ? 'none' : 'block'
+            <PDFViewer
+              fileUrl={blobUrl}
+              fileName={fileName}
+              onLoadError={() => {
+                setError('PDF 加载失败，请尝试下载后查看')
+                setLoading(false)
               }}
-              title={fileName}
             />
-          ) : null}
+          ) : (
+            <div style={{ padding: '100px 0' }}>
+              <Spin size="large" tip="加载 PDF..." />
+            </div>
+          )}
         </div>
       )
     }
